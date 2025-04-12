@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="User Service Suite">
+    <test name="UserService Tests">
+        <packages>
+            <package name="service"/>  <!-- chạy tất cả class test trong package "service" -->
+        </packages>
+    </test>
+</suite>

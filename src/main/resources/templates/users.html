@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="cartApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng của bạn</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+</head>
+<body ng-controller="CartController">
+<h2>Giỏ hàng của {{ userName }}</h2>
+
+<div ng-if="cartItems.length === 0">Không có sản phẩm nào trong giỏ hàng.</div>
+
+<div ng-repeat="item in cartItems">
+    <img ng-src="{{ item.imageUrl }}" width="100" />
+    <h3>{{ item.name }}</h3>
+    <p>Giá: {{ item.price | currency:'₫' }}</p>
+    <p>Loại: {{ item.category }}</p>
+    <p>Số lượng: {{ item.quantity }}</p>
+    <hr />
+</div>
+
+<script>
+    angular.module('cartApp', [])
+        .controller('CartController', function ($scope, $http) {
+            $scope.userId = localStorage.getItem('userId');
+            $scope.userName = localStorage.getItem('userName') || "Người dùng";
+
+            if (!$scope.userId) {
+                alert("Bạn cần đăng nhập để xem giỏ hàng.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            const cartUrl = `https://assignment-34f27-default-rtdb.asia-southeast1.firebasedatabase.app/cart/${$scope.userId}.json`;
+
+            $scope.cartItems = [];
+
+            $http.get(cartUrl).then(function (response) {
+                const data = response.data;
+                angular.forEach(data, function (value, key) {
+                    value.id = key;
+                    $scope.cartItems.push(value);
+                });
+            });
+        });
+</script>
+</body>
+</html>

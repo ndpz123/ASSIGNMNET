@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="registerApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng ký</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .register-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+
+    .register-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .register-box input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .register-box button {
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+
+    .error, .success {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+
+  <script>
+    angular.module('registerApp', [])
+            .controller('RegisterController', function ($scope, $http, $window) {
+              const baseUrl = 'https://assignment-34f27-default-rtdb.asia-southeast1.firebasedatabase.app/users.json';
+
+              $scope.register = function () {
+                const user = {
+                  email: $scope.email,
+                  password: $scope.password,
+                  name: $scope.name,
+                  phone: $scope.phone,
+                  address: $scope.address
+                };
+
+                // Kiểm tra điều kiện nhập
+                if (!user.email || !user.password || !user.name) {
+                  $scope.errorMessage = "Vui lòng điền đầy đủ thông tin bắt buộc.";
+                  return;
+                }
+
+                // Kiểm tra định dạng email
+                const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+                if (!gmailPattern.test(user.email)) {
+                  $scope.errorMessage = "Email phải theo định dạng @gmail.com";
+                  return;
+                }
+
+                // Gửi dữ liệu
+                $http.post(baseUrl, user)
+                        .then(function () {
+                          $scope.errorMessage = "";
+                          $window.location.href = "login.html"; // chuyển hướng tới trang đăng nhập
+                        })
+                        .catch(function () {
+                          $scope.errorMessage = "Đăng ký thất bại. Vui lòng thử lại.";
+                        });
+              };
+            });
+  </script>
+</head>
+<body ng-controller="RegisterController">
+<div class="register-box">
+  <h2>Đăng ký</h2>
+  <div class="error" ng-if="errorMessage">{{errorMessage}}</div>
+  <form ng-submit="register()">
+    <input type="text" ng-model="name" placeholder="Họ và tên" required>
+    <input type="email" ng-model="email" placeholder="Email (ví dụ: example@gmail.com)" required>
+    <input type="password" ng-model="password" placeholder="Mật khẩu" required>
+    <input type="text" ng-model="phone" placeholder="Số điện thoại">
+    <input type="text" ng-model="address" placeholder="Địa chỉ">
+    <button type="submit">Đăng ký</button>
+  </form>
+</div>
+</body>
+</html>

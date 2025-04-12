@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi" ng-app="cartApp">
+<head>
+  <meta charset="UTF-8">
+  <title>Giỏ hàng của bạn</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --danger-color: #dc2626;
+      --success-color: #16a34a;
+      --background: #f8fafc;
+      --card-bg: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: var(--background);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .cart-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .cart-header {
+      background: linear-gradient(135deg, var(--primary-color), #1e40af);
+      color: white;
+      padding: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #64748b;
+    }
+
+    .empty-cart i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #cbd5e1;
+    }
+
+    .cart-items {
+      padding: 2rem;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 2rem;
+      padding: 1.5rem;
+      border-bottom: 1px solid #e2e8f0;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .cart-item:hover {
+      background: #f8fafc;
+    }
+
+    .item-image {
+      width: 100%;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #f1f5f9;
+      padding: 0.5rem;
+    }
+
+    .item-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .item-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .item-price {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .item-category {
+      background: #e2e8f0;
+      color: #475569;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      width: fit-content;
+    }
+
+    .item-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    .btn {
+      padding: 0.5rem 1.25rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-danger {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1e40af;
+    }
+
+    .checkout-section {
+      padding: 2rem;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .total-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .user-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 400px;
+      animation: modalEnter 0.3s ease;
+    }
+
+    @keyframes modalEnter {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .user-detail {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+
+    .user-detail p {
+      margin: 0.5rem 0;
+      color: #475569;
+    }
+
+    @media (max-width: 768px) {
+      .cart-item {
+        grid-template-columns: 1fr;
+      }
+
+      .item-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+
+      .checkout-section {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body ng-controller="CartController">
+<div class="cart-container">
+  <div class="cart-header">
+    <div class="user-info">
+      <div class="user-avatar">
+        {{ userName[0] }}
+      </div>
+      <h2>Giỏ hàng của {{ userName }}</h2>
+    </div>
+    <button class="btn btn-primary" ng-click="showCheckout()">
+      <i class="fas fa-credit-card"></i>
+      Thanh toán
+    </button>
+  </div>
+
+  <div ng-if="cartItems.length === 0" class="empty-cart">
+    <i class="fas fa-shopping-cart"></i>
+    <p>Không có sản phẩm nào trong giỏ hàng</p>
+  </div>
+
+  <div class="cart-items">
+    <div ng-repeat="item in cartItems" class="cart-item">
+      <img ng-src="{{ item.imageUrl }}" class="item-image" alt="Product image">
+      <div class="item-details">
+        <h3 class="item-name">{{ item.name }}</h3>
+        <p class="item-price">{{ item.price | currency:'₫' }}</p>
+        <span class="item-category">{{ item.category }}</span>
+        <div class="quantity-control">
+          <button class="btn-quantity" ng-click="updateQuantity(item.id, -1)">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="quantity">{{ item.quantity }}</span>
+          <button class="btn-quantity" ng-click="updateQuantity(item.id, 1)">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-danger" ng-click="removeItem(item.id)">
+          <i class="fas fa-trash"></i>
+          Xóa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="checkout-section" ng-if="cartItems.length > 0">
+    <div class="total-price">
+      Tổng cộng: {{ getTotal() | currency:'₫' }}
+    </div>
+    <button class="btn btn-primary" ng-click="showCheckout()">
+      <i class="fas fa-credit-card"></i>
+      Thanh toán
+    </button>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="user-modal" ng-show="showModal">
+  <div class="modal-content">
+    <h3>Thông tin thanh toán</h3>
+    <div class="user-detail">
+      <p><strong>Họ tên:</strong> {{ userData.fullName }}</p>
+      <p><strong>Email:</strong> {{ userData.email }}</p>
+      <p><strong>Địa chỉ:</strong> {{ userData.address }}</p>
+      <p><strong>SĐT:</strong> {{ userData.phone }}</p>
+    </div>
+    <button class="btn btn-primary" ng-click="confirmCheckout()">
+      <i class="fas fa-check"></i>
+      Xác nhận thanh toán
+    </button>
+    <button class="btn btn-danger" ng-click="closeModal()">
+      <i class="fas fa-times"></i>
+      Đóng
+    </button>
+  </div>
+</div>
+
+<script>
+  angular.module('cartApp', [])
+          .controller('CartController', function ($scope, $http, $q) {
+            $scope.userId = localStorage.getItem('userId');
+            $scope.userName = localStorage.getItem('userName') || "Người dùng";
+            $scope.userData = JSON.parse(localStorage.getItem('userData')) || {};
+            $scope.showModal = false;
+
+            if (!$scope.userId) {
+              alert("Bạn cần đăng nhập để xem giỏ hàng.");
+              window.location.href = "login.html";
+              return;
+            }
+
+            const cartUrl = `https://assignment-34f27-default-rtdb.asia-southeast1.firebasedatabase.app/cart/${$scope.userId}.json`;
+            const usersUrl = `https://assignment-34f27-default-rtdb.asia-southeast1.firebasedatabase.app/users/${$scope.userId}.json`;
+
+            // Lấy giỏ hàng
+            $http.get(cartUrl).then(response => {
+              const data = response.data || {};
+              $scope.cartItems = Object.keys(data).map(key => ({
+                id: key,
+                ...data[key]
+              }));
+            });
+
+            // Lấy thông tin người dùng
+            $scope.loadUserData = () => {
+              $http.get(usersUrl).then(response => {
+                $scope.userData = response.data;
+                localStorage.setItem('userData', JSON.stringify(response.data));
+              });
+            };
+
+            // Tính tổng giá trị giỏ hàng
+            $scope.getTotal = () => {
+              return $scope.cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            };
+
+            // Cập nhật số lượng sản phẩm
+            $scope.updateQuantity = (itemId, change) => {
+              const item = $scope.cartItems.find(i => i.id === itemId);
+              const newQuantity = item.quantity + change;
+
+              if (newQuantity < 1) {
+                $scope.removeItem(itemId);
+                return;
+              }
+
+              const updateUrl = `https://assignment-34f27-default-rtdb.asia-southeast1.firebasedatabase.app/cart/${$scope.userId}/${itemId}.json`;
+              $http.patch(updateUrl, { quantity: newQuantity })
+                      .then(() => {
+                        item.quantity = newQuantity;
+                      });
+            };
+
+            // Xoá sản phẩm khỏi giỏ hàng
+            $scope.removeItem = (itemId) => {
+              if (!confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) return;
+              const deleteUrl = `https://assignment-34f27-default-rtdb.asia-southeast1.firebasedatabase.app/cart/${$scope.userId}/${itemId}.json`;
+              $http.delete(deleteUrl).then(() => {
+                $scope.cartItems = $scope.cartItems.filter(item => item.id !== itemId);
+              });
+            };
+
+            // Hiển thị modal thanh toán
+            $scope.showCheckout = () => {
+              $scope.loadUserData();
+              $scope.showModal = true;
+            };
+
+            // Đóng modal thanh toán
+            $scope.closeModal = () => {
+              $scope.showModal = false;
+            };
+
+            // Xác nhận thanh toán
+            $scope.confirmCheckout = () => {
+              if (!$scope.userData?.address || !$scope.userData?.phone) {
+                alert('Vui lòng cập nhật đầy đủ thông tin cá nhân trước khi thanh toán');
+                return;
+              }
+
+              // Kiểm tra stock trước khi trừ
+              const checkStockPromises = $scope.cartItems.map(item => {
+                const productUrl = `https://assignment-34f27-default-rtdb.asia-southeast1.firebasedatabase.app/products/${item.productId}.json`;
+                return $http.get(productUrl).then(response => {
+                  const product = response.data;
+
+                  // Kiểm tra xem sản phẩm có tồn tại và có thuộc tính stock không
+                  if (!product || product.stock === undefined || product.stock === null) {
+                    return $q.reject(`Sản phẩm "${item.name}" không tồn tại hoặc thiếu thông tin kho.`);
+                  }
+
+                  // Kiểm tra số lượng trong kho
+                  if (product.stock < item.quantity) {
+                    return $q.reject(`Sản phẩm "${item.name}" chỉ còn ${product.stock} sản phẩm`);
+                  }
+
+                  return { productUrl, item, product };
+                });
+              });
+
+              $q.all(checkStockPromises)
+                      .then(results => {
+                        // Trừ stock sau khi đã kiểm tra tất cả
+                        const updatePromises = results.map(({ productUrl, item, product }) => {
+                          const newStock = product.stock - item.quantity;
+
+                          // Nếu stock còn lại bằng 0, xóa sản phẩm
+                          if (newStock === 0) {
+                            return $http.delete(productUrl); // Xóa sản phẩm khỏi Firebase nếu hết stock
+                          } else {
+                            return $http.patch(productUrl, { stock: newStock }); // Cập nhật lại stock
+                          }
+                        });
+
+                        return $q.all(updatePromises);
+                      })
+                      .then(() => $http.delete(cartUrl)) // Xóa tất cả sản phẩm trong giỏ hàng
+                      .then(() => {
+                        alert('Thanh toán thành công!');
+                        $scope.cartItems = []; // Xóa giỏ hàng
+                        $scope.closeModal(); // Đóng modal thanh toán
+                      })
+                      .catch(error => {
+                        alert(error.message || error);
+                        console.error('Lỗi:', error);
+                      });
+            };
+          });
+</script>
+</body>
+</html>
